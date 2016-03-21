@@ -90,7 +90,7 @@ public class CompanyService {
                 //Actually, in this block employee chose priority task and put it into completed list.
                 // It can be done without time restriction. But in the offtime was setted overtime flag
                 for (Employee e : company.getEmployeeList())
-                    e.getEmployeeService().doTheTask(company, e, ((i < WORKS_START_HOUR | i > WORKS_END_HOUR));
+                    e.getEmployeeService().doTheTask(company, e, ((i < WORKS_START_HOUR | i > WORKS_END_HOUR)));
             }
             Calendar tempDate = company.getActualDate();
             tempDate.add(Calendar.DAY_OF_MONTH, i);
