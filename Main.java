@@ -1,3 +1,5 @@
+import entity.Company;
+
 /**
  * Created by viacheslav on 18.03.16.
  */
