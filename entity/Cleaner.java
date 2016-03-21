@@ -20,7 +20,6 @@ public class Cleaner extends UniversalEmployee {
 
     /**
      * It's overrided method to do nothing, because cleaner can't share positions with any alse
-     *
      * @param positionsType position to add
      * @return false in any case.
      */

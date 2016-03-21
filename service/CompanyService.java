@@ -8,13 +8,21 @@ import java.util.*;
 
 import static types.Constants.*;
 
-/**
- * Created by viacheslav on 21.03.16.
+/** Class purpose to provide service methods for the company.
+ *  Created by viacheslav on 21.03.16.
  */
 public class CompanyService {
+
+    /**
+     * This method is make initialisation procedures and need to be runned firstly.
+     * It generates ramdomly employees quantity and ensure that the current company has atleast one Director, Manager, Accountant, Cleaner.
+     * Also it adds additional positions to workers
+     * * @param company - incapsulate current company instance
+     */
     public void init(Company company) {
 
-        List<Enum> employeesInd = Arrays.asList(PositionsType.values());
+        // formed List from Positions Enum for random Employee generating
+        List<PositionsType> employeesInd = Arrays.asList(PositionsType.values());
 
         //Generate random(up to 100) Employees quantity
         int workersQuantity = new Random().nextInt(100);
@@ -36,13 +44,23 @@ public class CompanyService {
         // toDo add more positions to all workers;
     }
 
+    /**
+     * This method is modelate company operating.
+     * It has two cycles for days and hours per day.
+     * And bases on current hour - this methods invokes difeerent servise methods
+     * * @param company - incapsulate current company instance
+     */
     public void operate(Company company) {
-        company.setActualDate(new GregorianCalendar(2016, 10, 1, 0, 0, 0));
-        Calendar finishDate = new GregorianCalendar(2016, 11, 1, 0, 0, 0);
+        company.setActualDate(ACTUAL_DATE);
         Queue<Task> companyTaskQueue = company.getTaskQueue();
-        for (int i = 1; company.getActualDate().before(finishDate); i++) {
+
+        // Modelate monthly cycle of company ( from 1-st to month end)
+        for (int i = 1; company.getActualDate().before(FINISH_DATE); i++) {
+
+            // Modelate dayly hours changing from 00-24
             for (int j = 0; j < 23; ++j) {
-                // setting working hours for each day;
+
+                // setting working hours for each day - renew value for each new day;
                 for (Employee e : company.getEmployeeList()) {
                     e.setTimeLeftToWorkAtDay(WORK_HOURS_PER_DAY);
                 }
@@ -92,13 +110,20 @@ public class CompanyService {
                 for (Employee e : company.getEmployeeList())
                     e.getEmployeeService().doTheTask(company, e, ((i < WORKS_START_HOUR | i > WORKS_END_HOUR)));
             }
+            // Changing current date for company
             Calendar tempDate = company.getActualDate();
             tempDate.add(Calendar.DAY_OF_MONTH, i);
             company.setActualDate(tempDate);
         }
     }
 
-
+    /**
+     * This method is checks if atleast one person has needed position.
+     *
+     * @param company       - incapsulate current company instance
+     * @param positionsType - incapsulate current company instance
+     * @return {@code true} if atleast one person has needed position
+     */
     private boolean checkRestrictedPositions(Company company, PositionsType positionsType) {
         for (Employee e : company.getEmployeeList()) {
             if (e.ifEmplHasNeededPosition(positionsType)) return true;

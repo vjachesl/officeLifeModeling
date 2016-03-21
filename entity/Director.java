@@ -10,6 +10,11 @@ import types.PositionsType;
  * It extends from Universal entity.Employee.
  */
 public class Director extends UniversalEmployee {
+
+    /**
+     * The value is used for storing director service methods instance .
+     * It's assigns only in constructor
+     */
     DirectorService directorService;
 
     /**
@@ -33,6 +38,7 @@ public class Director extends UniversalEmployee {
         //can't add any other positions;
         return false;
     }
+
 
     public DirectorService getDirectorService() {
         return directorService;

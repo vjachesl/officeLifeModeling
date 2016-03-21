@@ -49,6 +49,10 @@ public class UniversalEmployee implements Employee {
      * It's update once per month and decrease with each assigned task */
     private int timeLeftToWorkAtMonth;
 
+    /**
+     * The value is used for storing employee service methods instance .
+     * It's assigns only in constructor
+     */
     private EmployeeService employeeService;
 
 
@@ -61,11 +65,11 @@ public class UniversalEmployee implements Employee {
         empSurName = "empSurName" + empNumber;
         timeLeftToWorkAtMonth = WORK_HOURS_PER_MONTH;
         timeLeftToWorkAtDay = WORK_HOURS_PER_DAY;
-        positionsTypeList = new ArrayList<>();
+        positionsTypeList = new ArrayList<PositionsType>();
         employeeService = new EmployeeService();
     }
 
-    /** Constructor for addind new positions to the employee
+    /** method implementation for adding new positions to the employee
      * @param positionsType position to be added to an employee as an instance of PositionType Enum
      * @return {@code true} - if is possible to add additional position to worker.
      * */
@@ -81,34 +85,19 @@ public class UniversalEmployee implements Employee {
 
 
     /**Set of getters for parameters * */
-    @Override
+
     public EmployeeType getEmpType() {
         return empType;
     }
-    @Override
+
     public String getEmployeeNumberName() {
         return empNumber + "_" + empSurName;
     }
 
-    @Override
     public List<PositionsType> getPositions() {
         return null;
     }
 
-    @Override
-    public int getTimeLeftToWorkAtDay() {
-        return timeLeftToWorkAtDay;
-    }
-
-    /**
-     * Setter for renewing the days hours for the next days*
-     */
-    @Override
-    public void setTimeLeftToWorkAtDay(int hours) {
-        timeLeftToWorkAtDay = hours;
-    }
-
-    @Override
     public int getTimeLeftToWorkAtMonth() {
         return timeLeftToWorkAtMonth;
     }
@@ -117,11 +106,26 @@ public class UniversalEmployee implements Employee {
         this.timeLeftToWorkAtMonth = timeLeftToWorkAtMonth;
     }
 
-    @Override
+    public int getTimeLeftToWorkAtDay() {
+        return timeLeftToWorkAtDay;
+    }
+
+    /**
+     * Set of setters
+     */
+    public void setTimeLeftToWorkAtDay(int hours) {
+        timeLeftToWorkAtDay = hours;
+    }
+
     public EmployeeService getEmployeeService() {
         return employeeService;
     }
 
+    /** This method checks if employee has needed position
+     *
+     * @param positionsType position to check
+     * @return {flag = true} if has.
+     */
     public boolean ifEmplHasNeededPosition(PositionsType positionsType) {
         for (PositionsType p : positionsTypeList) {
             if (p.equals(positionsType)) return true;
