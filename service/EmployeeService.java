@@ -21,21 +21,21 @@ public class EmployeeService {
      * @param employee - define which employee will be returned from the method
      * @return new employee instance or null, if wrong input was made.
      */
-    public static Employee getEmployee(Enum<PositionsType> employee) {
+    public static Employee getEmployee(PositionsType employee) {
         switch (employee.toString()) {
-            case "entity.Director":
+            case "Director":
                 return new Director();
-            case "entity.Manager":
+            case "Manager":
                 return new Manager();
-            case "entity.Accountant":
+            case "Accountant":
                 return new Accountant();
-            case "entity.Designer":
+            case "Designer":
                 return new Designer();
-            case "entity.Programmer":
+            case "Programmer":
                 return new Programmer();
-            case "entity.Tester":
+            case "Tester":
                 return new Tester();
-            case "entity.Cleaner":
+            case "Cleaner":
                 return new Cleaner();
             case "Freelancer":
                 return new UniversalEmployee(EmployeeType.FreelanceHourlyPayd);
@@ -77,6 +77,7 @@ public class EmployeeService {
             employeeTask.add(task);
             return true;
         }
+        System.out.println("not");
         return false;
     }
 
@@ -120,7 +121,9 @@ public class EmployeeService {
             if (t.getTaskPriority().equals(taskPriority) || t.getTaskStatus().equals(TaskStatus.Assigned))
                 resultList.add(t);
         }
-        if (resultList.size() == 1) return resultList.get(1);
+
+        if (resultList.size() == 0) return null;
+        if (resultList.size() == 1) return resultList.get(0);
         else {
             Task taskToReturn = resultList.get(0);
             for (Task t : tasks) {

@@ -114,4 +114,8 @@ public class Task {
     public void setOvertimeTask(boolean isOvertimeTask) {
         this.isOvertimeTask = isOvertimeTask;
     }
+
+    public Calendar getDate() {
+        return date;
+    }
 }

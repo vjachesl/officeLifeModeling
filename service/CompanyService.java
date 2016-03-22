@@ -19,15 +19,16 @@ public class CompanyService {
      * Also it adds additional positions to workers
      * * @param company - incapsulate current company instance
      */
-    public void init(Company company) {
+    public static void init(Company company) {
 
         // formed List from Positions Enum for random Employee generating
         List<PositionsType> employeesInd = Arrays.asList(PositionsType.values());
 
         //Generate random(up to 100) Employees quantity
-        int workersQuantity = new Random().nextInt(100);
+        int workersQuantity = new Random().nextInt(10);
         if (workersQuantity < 10) workersQuantity = workersQuantity + 10;
         for (int i = 1; i <= workersQuantity; i++) {
+            //    System.out.println(EmployeeService.getEmployee(employeesInd.get(new Random().nextInt(employeesInd.size()))));
             company.getEmployeeList().add(EmployeeService.getEmployee(employeesInd.get(new Random().nextInt(employeesInd.size()))));
         }
 
@@ -50,7 +51,7 @@ public class CompanyService {
      * And bases on current hour - this methods invokes difeerent servise methods
      * * @param company - incapsulate current company instance
      */
-    public void operate(Company company) {
+    public static void operate(Company company) {
         company.setActualDate(ACTUAL_DATE);
         Queue<Task> companyTaskQueue = company.getTaskQueue();
 
@@ -71,17 +72,15 @@ public class CompanyService {
                     for (Employee e : company.getEmployeeList()) {
                         if (e instanceof Accountant) {
                             ((Accountant) e).getAccountantService().doFreelanceReport(company);
-                            ((Accountant) e).getAccountantService().doHourlyPaydEmpeeReports(company);
+                            //     ((Accountant) e).getAccountantService().doHourlyPaydEmployeeReports(company);
                             ((Accountant) e).getAccountantService().doMonthlyReport(company);
-
-
                             break;
                         }
                     }
                 }
 
                 //During operating time generating and assigning tasks:
-                if (i >= WORKS_START_HOUR & i <= (WORKS_END_HOUR - 2)) {
+                if (j >= WORKS_START_HOUR & j <= (WORKS_END_HOUR - 2)) {
 
                     // try to find all directors and ask for new tasks;
                     for (Employee e : company.getEmployeeList()) {
@@ -90,11 +89,13 @@ public class CompanyService {
                         }
                     }
                     // Try to assign new task to relevant employee///
-                    while (!companyTaskQueue.isEmpty()) {
+                    while (!(companyTaskQueue.isEmpty())) {
                         for (Employee e : company.getEmployeeList()) {
+                            if (companyTaskQueue.isEmpty()) break;
                             if (e.getEmployeeService().isSuitableForTask(e, companyTaskQueue.peek()))
                                 e.getEmployeeService().addTaskToEmployee(company, e, companyTaskQueue.poll());
                         }
+                        if (companyTaskQueue.isEmpty()) break;
                         // if No suitable fulltime worker - need a freelancer
                         Task taskForFreelancer = companyTaskQueue.poll();
                         //Making needed freelancer and assign the task to him
@@ -108,11 +109,11 @@ public class CompanyService {
                 //Actually, in this block employee chose priority task and put it into completed list.
                 // It can be done without time restriction. But in the offtime was setted overtime flag
                 for (Employee e : company.getEmployeeList())
-                    e.getEmployeeService().doTheTask(company, e, ((i < WORKS_START_HOUR | i > WORKS_END_HOUR)));
+                    e.getEmployeeService().doTheTask(company, e, ((j < WORKS_START_HOUR | j > WORKS_END_HOUR)));
             }
             // Changing current date for company
             Calendar tempDate = company.getActualDate();
-            tempDate.add(Calendar.DAY_OF_MONTH, i);
+            tempDate.add(Calendar.DAY_OF_MONTH, 1);
             company.setActualDate(tempDate);
         }
     }
@@ -124,7 +125,7 @@ public class CompanyService {
      * @param positionsType - incapsulate current company instance
      * @return {@code true} if atleast one person has needed position
      */
-    private boolean checkRestrictedPositions(Company company, PositionsType positionsType) {
+    private static boolean checkRestrictedPositions(Company company, PositionsType positionsType) {
         for (Employee e : company.getEmployeeList()) {
             if (e.ifEmplHasNeededPosition(positionsType)) return true;
         }

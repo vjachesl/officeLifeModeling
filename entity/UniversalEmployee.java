@@ -65,8 +65,9 @@ public class UniversalEmployee implements Employee {
         empSurName = "empSurName" + empNumber;
         timeLeftToWorkAtMonth = WORK_HOURS_PER_MONTH;
         timeLeftToWorkAtDay = WORK_HOURS_PER_DAY;
-        positionsTypeList = new ArrayList<PositionsType>();
+        positionsTypeList = new ArrayList<>();
         employeeService = new EmployeeService();
+        this.empType = empType;
     }
 
     /** method implementation for adding new positions to the employee
@@ -74,8 +75,12 @@ public class UniversalEmployee implements Employee {
      * @return {@code true} - if is possible to add additional position to worker.
      * */
     public boolean addPosition(PositionsType positionsType) {
+        if (positionsTypeList.size() == 0) {
+            positionsTypeList.add(positionsType);
+            return true;
+        }
         for (PositionsType p : positionsTypeList) {
-            if (p == null || p.isSharedPosition()) {
+            if (p.isSharedPosition() && positionsType.isSharedPosition()) {
                 positionsTypeList.add(positionsType);
                 return true;
             }
@@ -95,7 +100,7 @@ public class UniversalEmployee implements Employee {
     }
 
     public List<PositionsType> getPositions() {
-        return null;
+        return positionsTypeList;
     }
 
     public int getTimeLeftToWorkAtMonth() {

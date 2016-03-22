@@ -6,6 +6,7 @@ import entity.Task;
 import types.EmployeeType;
 import types.TaskStatus;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
@@ -33,21 +34,24 @@ public class AccountantService {
      */
     public Boolean doFreelanceReport(Company company) {
         List<Employee> freelanceList = new ArrayList<>();
-        for (Employee e : ((Employee[]) company.getEmployeesTaskMap().keySet().toArray())) {
+        for (Employee e : new ArrayList<Employee>(company.getEmployeesTaskMap().keySet())) {
             if (e.getEmpType().equals(EmployeeType.FreelanceHourlyPayd)) freelanceList.add(e);
         }
         SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyyMMMdd");
         for (Employee e : freelanceList) {
             int dayPaydAmount = 0;
+            int dayHoursmount = 0;
             Calendar date = company.getActualDate();
-            try (PrintStream out = new PrintStream(new FileOutputStream("" + e.getEmployeeNumberName() + simpleFormat.format(date.getTime() + ".txt")))) {
-                out.println("Report on Date" + simpleFormat.format(date.getTime() + "for employee " + e.getEmployeeNumberName()));
+            File outputFile = new File("Daily_" + e.getEmployeeNumberName() + "_D" + simpleFormat.format(date.getTime() + ".txt"));
+            try (PrintStream out = new PrintStream(new FileOutputStream(outputFile))) {
+                out.println("Report on Date" + simpleFormat.format(date.getTime() + "for employee " + e.getEmployeeNumberName()) + "empl Type" + e.getEmpType());
                 out.println("The following task was completed:");
-                out.println("entity.Task #   entity.Task Type   entity.Task priority entity.Task Duration  TaskPay");
+                out.println("Task #   Task Type   Task priority Task Duration  TaskPay");
                 for (Task t : company.getEmployeesTaskMap().get(e)) {
-                    if (t.getTaskStatus().equals(TaskStatus.Completed)) {
+                    if (date.equals(t.getDate()) && t.getTaskStatus().equals(TaskStatus.Completed)) {
                         dayPaydAmount = dayPaydAmount + t.getTaskType().getPositionsType().getPositionRate();
-                        out.println("" + t.getTaskNumber() + " " + t.getTaskType() + " " + t.getTaskDuration() + " " + t.getTaskType().getPositionsType().getPositionRate());
+                        out.println("" + t.getTaskNumber() + " " + t.getTaskType() + " " + t.getTaskPriority() + " " + t.getTaskDuration() + " " + t.getTaskType().getPositionsType().getPositionRate());
+                        dayHoursmount = dayHoursmount + t.getTaskDuration();
                     }
 
                 }
@@ -70,31 +74,33 @@ public class AccountantService {
      * @param company - incapsulate current company instance
      * @return {@code true} if all was made ok
      */
-    public Boolean doHourlyPaydEmpeeReports(Company company) {
+    public Boolean doHourlyPaydEmployeeReports(Company company) {
         Calendar date = company.getActualDate();
-        if (date.get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY ||
-                date.get(Calendar.DAY_OF_MONTH) != date.getActualMaximum(Calendar.DAY_OF_MONTH))
+        if (date.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY ||
+                date.get(Calendar.DAY_OF_MONTH) == date.getActualMaximum(Calendar.DAY_OF_MONTH))
             return false;
         List<Employee> hourlyPaydList = new ArrayList<>();
-        for (Employee e : (Employee[]) company.getEmployeesTaskMap().keySet().toArray()) {
+        for (Employee e : new ArrayList<Employee>(company.getEmployeesTaskMap().keySet())) {
             if (e.getEmpType().equals(EmployeeType.FullTimeHourlyPayd)) hourlyPaydList.add(e);
         }
         SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyyMMM");
         for (Employee e : hourlyPaydList) {
-            int WeekPaydAmount = 0;
-            try (PrintStream out = new PrintStream(new FileOutputStream("" + e.getEmployeeNumberName() + simpleFormat.format(date.getTime()) + date.get(Calendar.WEEK_OF_MONTH) + ".txt"))) {
-                out.println("Report on Week oof month" + date.get(Calendar.WEEK_OF_MONTH) + "for employee " + e.getEmployeeNumberName());
+            int weekPaydAmount = 0;
+            int weekTimeAmount = 0;
+            try (PrintStream out = new PrintStream(new FileOutputStream("Weekly_" + e.getEmployeeNumberName() + "_D" + simpleFormat.format(date.getTime()) + "_W" + date.get(Calendar.WEEK_OF_MONTH) + ".txt"))) {
+                out.println("Weekly Report on Week of month:" + date.get(Calendar.WEEK_OF_MONTH) + "for employee " + e.getEmployeeNumberName() + "empl Type" + e.getEmpType());
                 out.println("The following task was completed:");
-                out.println("entity.Task #   entity.Task Type   entity.Task priority entity.Task Duration  IsOvertimeTask TaskPay");
+                out.println("Task #   Task Type  Task priority Task Duration  IsOvertimeTask TaskPay");
                 //selecting weekly task from the whole tasklist
                 for (Task t : company.getEmployeesTaskMap().get(e)) {
                     if (date.get(Calendar.WEEK_OF_YEAR) == t.getWeekN() && t.getTaskStatus().equals(TaskStatus.Completed)) {
-                        WeekPaydAmount = WeekPaydAmount + (t.isOvertimeTask() ? t.getTaskType().getPositionsType().getPositionRate() * 2 : t.getTaskType().getPositionsType().getPositionRate());
-                        out.println("" + t.getTaskNumber() + " " + t.getTaskType() + " " + t.getTaskDuration() + t.isOvertimeTask() + " " + (t.isOvertimeTask() ? t.getTaskType().getPositionsType().getPositionRate() * 2 : t.getTaskType().getPositionsType().getPositionRate()));
+                        weekPaydAmount = weekPaydAmount + (t.isOvertimeTask() ? t.getTaskType().getPositionsType().getPositionRate() * 2 : t.getTaskType().getPositionsType().getPositionRate());
+                        out.println("" + t.getTaskNumber() + " " + t.getTaskType() + " " + t.getTaskPriority() + " " + t.getTaskDuration() + t.isOvertimeTask() + " " + (t.isOvertimeTask() ? t.getTaskType().getPositionsType().getPositionRate() * 2 : t.getTaskType().getPositionsType().getPositionRate()));
+                        weekTimeAmount = weekTimeAmount + t.getTaskDuration();
                     }
                 }
-                out.println(" Total hours:" + (40 - e.getTimeLeftToWorkAtDay()));
-                out.println(" Total amount to pay:" + WeekPaydAmount);
+                out.println(" Total hours:" + weekTimeAmount);
+                out.println(" Total amount to pay:" + weekPaydAmount);
             } catch (FileNotFoundException e1) {
                 e1.printStackTrace();
             }
@@ -115,32 +121,34 @@ public class AccountantService {
         if (date.get(Calendar.DAY_OF_MONTH) != date.getActualMaximum(Calendar.DAY_OF_MONTH)) return false;
         SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyyMMM");
         int totalAmount = 0;
-        try (PrintStream out = new PrintStream(new FileOutputStream("JointReportFor" + simpleFormat.format(date.getTime()) + "filename.txt"))) {
+        try (PrintStream out = new PrintStream(new FileOutputStream("JointReportForCompany_" + simpleFormat.format(date.getTime()) + "filename.txt"))) {
             for (Employee e : company.getEmployeeList()) {
-                int MonthPaydAmount;
                 if (e.getEmpType().equals(EmployeeType.FullTimeFixed)) {
-                    out.println("Report on month" + date.get(Calendar.MONTH) + "for employee " + e.getEmployeeNumberName() + e.getEmpType());
-                    MonthPaydAmount = e.getPositions().get(0).getPositionRate();
-                    System.out.println(" Was earned without time counting " + MonthPaydAmount);
-                    totalAmount = totalAmount + MonthPaydAmount;
+                    out.println("Report on month" + date.get(Calendar.MONTH) + "for employee " + e.getEmployeeNumberName() + "empl Type" + e.getEmpType());
+                    totalAmount = totalAmount + e.getPositions().get(0).getPositionRate();
+                    out.println(" Monthly amount to pay:" + e.getPositions().get(0).getPositionRate());
                 }
             }
-
-            for (Employee e : (Employee[]) company.getEmployeesTaskMap().keySet().toArray()) {
-                int MonthPaydAmount = 0;
-                out.println("Report on month" + date.get(Calendar.MONTH) + "for employee " + e.getEmployeeNumberName() + e.getEmpType());
-                out.println("The following task was completed:");
-                out.println("entity.Task #   entity.Task Type   entity.Task priority entity.Task Duration  IsOwertimetask TaskPay");
-                for (Task t : company.getEmployeesTaskMap().get(e)) {
-                    if (t.getTaskStatus().equals(TaskStatus.Completed)) {
-                        int currentTaskAmount = (t.isOvertimeTask() ? t.getTaskType().getPositionsType().getPositionRate() * 2 : t.getTaskType().getPositionsType().getPositionRate());
-                        MonthPaydAmount = MonthPaydAmount + currentTaskAmount;
-                        out.println("" + t.getTaskNumber() + " " + t.getTaskType() + " " + t.getTaskDuration() + t.isOvertimeTask() + " " + currentTaskAmount);
+            for (Employee e : new ArrayList<Employee>(company.getEmployeesTaskMap().keySet())) {
+                if (!e.getEmpType().equals(EmployeeType.FullTimeFixed)) {
+                    int monthPaydAmount = 0;
+                    int monthlyHours = 0;
+                    out.println("Report on month" + date.get(Calendar.MONTH) + "for employee " + e.getEmployeeNumberName() + "empl Type" + e.getEmpType());
+                    out.println("The following task was completed:");
+                    out.println("Task #   Task Type   Task priority Task Duration  Is Owertimetask TaskPay");
+                    for (Task t : company.getEmployeesTaskMap().get(e)) {
+                        if (t.getTaskStatus().equals(TaskStatus.Completed)) {
+                            int currentTaskAmount = (t.isOvertimeTask() ? t.getTaskType().getPositionsType().getPositionRate() * 2 : t.getTaskType().getPositionsType().getPositionRate());
+                            monthPaydAmount = monthPaydAmount + currentTaskAmount;
+                            monthlyHours = monthlyHours + t.getTaskDuration();
+                            out.println("" + t.getTaskNumber() + " " + t.getTaskType() + " " + t.getTaskPriority() + " " + t.getTaskDuration() + t.isOvertimeTask() + " " + currentTaskAmount);
+                        }
                     }
+                    out.println(" Total hours:" + monthlyHours);
+                    out.println(" Monthly amount to pay:" + monthPaydAmount);
+                    totalAmount = totalAmount + monthPaydAmount;
+                    out.println(" Total amount to pay all workers:" + totalAmount);
                 }
-                out.println(" Total hours:" + (40 - e.getTimeLeftToWorkAtDay()));
-                out.println(" Monthly amount to pay:" + MonthPaydAmount);
-                totalAmount = totalAmount + MonthPaydAmount;
             }
 
 
