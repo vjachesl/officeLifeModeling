@@ -10,7 +10,8 @@ public enum PositionsType {
     Designer("Designer", true, true, false, 20),
     Programmer("Programmer", true, true, false, 40),
     Cleaner("Cleaner", false, false, false, 5),
-    Tester("Tester", true, true, false, 10);
+    Tester("Tester", true, true, false, 10),
+    Freelancer("Freelancer", true, true, false, 10);
 
     private String printName;
     private boolean sharedPosition;

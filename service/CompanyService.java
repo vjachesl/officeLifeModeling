@@ -17,7 +17,7 @@ public class CompanyService {
      * This method is make initialisation procedures and need to be runned firstly.
      * It generates ramdomly employees quantity and ensure that the current company has atleast one Director, Manager, Accountant, Cleaner.
      * Also it adds additional positions to workers
-     * * @param company - incapsulate current company instance
+     * @param company - incapsulate current company instance
      */
     public static void init(Company company) {
 
@@ -25,11 +25,11 @@ public class CompanyService {
         List<PositionsType> employeesInd = Arrays.asList(PositionsType.values());
 
         //Generate random(up to 100) Employees quantity
-        int workersQuantity = new Random().nextInt(10);
+        int workersQuantity = new Random().nextInt(MAX_EMPLOYEE_QUANTITY);
         if (workersQuantity < 10) workersQuantity = workersQuantity + 10;
         for (int i = 1; i <= workersQuantity; i++) {
             //    System.out.println(EmployeeService.getEmployee(employeesInd.get(new Random().nextInt(employeesInd.size()))));
-            company.getEmployeeList().add(EmployeeService.getEmployee(employeesInd.get(new Random().nextInt(employeesInd.size()))));
+            company.getEmployeeList().add(EmployeeService.getEmployee(employeesInd.get(new Random().nextInt(employeesInd.size() - 1))));
         }
 
         //Checks if company has atleast one entity.Director, entity.Manager, entity.Accountant, entity.Cleaner.
@@ -49,7 +49,7 @@ public class CompanyService {
      * This method is modelate company operating.
      * It has two cycles for days and hours per day.
      * And bases on current hour - this methods invokes difeerent servise methods
-     * * @param company - incapsulate current company instance
+     * @param company - incapsulate current company instance
      */
     public static void operate(Company company) {
         company.setActualDate(ACTUAL_DATE);
@@ -72,7 +72,7 @@ public class CompanyService {
                     for (Employee e : company.getEmployeeList()) {
                         if (e instanceof Accountant) {
                             ((Accountant) e).getAccountantService().doFreelanceReport(company);
-                            //     ((Accountant) e).getAccountantService().doHourlyPaydEmployeeReports(company);
+                            ((Accountant) e).getAccountantService().doHourlyPaydEmployeeReports(company);
                             ((Accountant) e).getAccountantService().doMonthlyReport(company);
                             break;
                         }
@@ -99,7 +99,7 @@ public class CompanyService {
                         // if No suitable fulltime worker - need a freelancer
                         Task taskForFreelancer = companyTaskQueue.poll();
                         //Making needed freelancer and assign the task to him
-                        Employee newFreelancer = EmployeeService.getEmployee(taskForFreelancer.getTaskType().getPositionsType());
+                        Employee newFreelancer = EmployeeService.getEmployee(PositionsType.Freelancer);
                         newFreelancer.addPosition(taskForFreelancer.getTaskType().getPositionsType());
                         newFreelancer.getEmployeeService().addTaskToEmployee(company, newFreelancer, taskForFreelancer);
                         company.getEmployeeList().add(newFreelancer);

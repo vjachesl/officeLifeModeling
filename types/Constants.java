@@ -12,4 +12,8 @@ public class Constants {
     public static final int WORKS_END_HOUR = 18;
     public static final GregorianCalendar ACTUAL_DATE = new GregorianCalendar(2016, 9, 1, 0, 0, 0);
     public static final GregorianCalendar FINISH_DATE = new GregorianCalendar(2016, 10, 1, 0, 0, 0);
+    public static final int MAX_TASK_QUANTITY = 5; // // Was reduce  due big file quantity generation....
+    public static final int MAX_EMPLOYEE_QUANTITY = 5; // Was reduce  due big file quantity generation....
+
+
 }
